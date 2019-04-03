@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" addBOMForNewFiles="with NO BOM">
+    <file url="file://$PROJECT_DIR$/_src/com/nameidentify/nlp/rmwang/nameidentify.java" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/_src/com/nlp1/rmwang/HMM.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/_src/com/nlp1/rmwang/HMMdictionary.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/datagbk/199801.txt" charset="GBK" />
+  </component>
+</project>
