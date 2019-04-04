@@ -53,6 +53,7 @@ public class DataManager {
 
             System.out.println("Dividing data at " + rawDataPath + " into train data and test data ...");
 
+            // Count of lines in train data and test data
             int trainLines = 0, testLines = 0;
 
             String line = raw.readLine();
@@ -61,7 +62,8 @@ public class DataManager {
                 line = line
                         // 1. Remove dates.
                         .replaceFirst("\\d{8}-\\d{2}-\\d{3}-\\d{3}/m\\s+", "")
-                        // 2. Remove group tags. See (line 6, column 84) in raw data file.
+                        // 2. Remove "group tags".
+                        // e.g. See (line 6, column 84) in raw data file.
                         .replace('[', ' ')
                         .replaceAll("]\\w+", "");
 
