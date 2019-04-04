@@ -15,7 +15,7 @@ Also, if you have some fundamental knowledge about Java and NLP, this repo shoul
 ## License
 Copyright Neo
 
-Licensed under the No License, Version 3.1415926. Anyone who uses this repo and recognize it as a good work, must *give me a star*. You may use this repo to whatever need you want, without notifying anybody on exception of this: If you are using this repo to finish your homework, I sincerely hope you to tell your teacher it's based on a GitHub project rather than saying it's your own work.
+Licensed under the No License, Version 3.1415926. Anyone who uses this repo and recognize it as a good work, must **give me a star**. You may use this repo to whatever need you want, without notifying anybody on exception of this: If you are using this repo to finish your homework, I sincerely hope you to tell your teacher it's based on a GitHub project rather than saying it's your own work.
 
 Full articles of this License is available at: 
 
