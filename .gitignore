@@ -2,3 +2,5 @@
 ### Java template
 out/
 /datagbk/
+/data/
+!/data/199801.txt
