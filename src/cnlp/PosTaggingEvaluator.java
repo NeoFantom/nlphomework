@@ -54,7 +54,7 @@ public class PosTaggingEvaluator {
         ArrayList<WordAndTag> standardTagging = readWordAndTags(standardTaggedPath);
         ArrayList<WordAndTag> myTagging = readWordAndTags(taggedPath);
 
-        assert standardTagging.size() != myTagging.size();
+        assert standardTagging.size() == myTagging.size();
 
         int size = standardTagging.size();
 
@@ -79,8 +79,8 @@ public class PosTaggingEvaluator {
         DataManager.writeObjectToJson(taggingComparisonPath, comparisons);
 
         System.out.println("Evaluation finished.");
-        System.out.println("======================================================");
-        System.out.println("                 POS Tagging Evaluation               ");
+        System.out.println("=========================================================");
+        System.out.println("                 POS Tagging Evaluation                  ");
         System.out.println("Total words:            " + size);
         System.out.println("Correctly tagged words: " + countCommon);
         System.out.println("Accuracy:               " + countCommon / (double) size);

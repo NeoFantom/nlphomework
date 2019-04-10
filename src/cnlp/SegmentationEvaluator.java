@@ -213,8 +213,8 @@ public class SegmentationEvaluator {
         double recall = TP / (TP + FN);
         System.out.println("=========================================================");
         System.out.println("            Segmentation Evaluation Finished             ");
-        System.out.println("Number of words in your segmentation:     y=" + onlyInMy + common);
-        System.out.println("Number of words in standard segmentation: s=" + onlyInStandard + common);
+        System.out.println("Number of words in your segmentation:     y=" + (onlyInMy + common));
+        System.out.println("Number of words in standard segmentation: s=" + (onlyInStandard + common));
         System.out.println("Number of words in common:                c=" + common);
         System.out.println("Number of characters totally:             t=" + totalCharacters);
         System.out.println("---------------------------------------------------------");
@@ -277,7 +277,9 @@ public class SegmentationEvaluator {
         DataManager.writeObjectToJson(differentPhrasesPath, comparisons);
 
         // Step 2 Summarize number of differences and print segmentation performance
-        for (int s = 0, m = 0; s < differentPhrasesSize && m < differentPhrasesSize; s++, m++) {
+        int standardWordsSize = standardWordsList.size();
+        int myWordsSize = myWordsList.size();
+        for (int s = 0, m = 0; s < standardWordsSize && m < myWordsSize; s++, m++) {
             if (!standardWordsList.get(s).equals(myWordsList.get(m))) {
                 int[] sm = forwardUntilEqual(s, m);
                 s = sm[0];
@@ -293,6 +295,8 @@ public class SegmentationEvaluator {
         int common = standardSummary[0];
         int onlyInStandard = standardSummary[1];
         int onlyInMy = mySummary[1];
+        assert common + onlyInMy == myWordsList.size();
+        assert common + onlyInStandard == standardWordsList.size();
         printEvaluation(common, onlyInStandard, onlyInMy, totalCharacters);
     }
 }
