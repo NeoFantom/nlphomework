@@ -24,16 +24,29 @@ public class PosTaggingEvaluator {
         this.WORD_DELIMITER = WORD_DELIMITER;
     }
 
+    /**
+     * For convenience of writing tagging results.
+     */
     private class TaggingComparison {
         boolean different;
         String standardTagging;
         String yourTagging;
 
-        public TaggingComparison(boolean different, String standardTagging, String yourTagging) {
+        TaggingComparison(boolean different, String standardTagging, String yourTagging) {
             this.different = different;
             this.standardTagging = standardTagging;
             this.yourTagging = yourTagging;
         }
+    }
+
+    private ArrayList<WordAndTag> readWordAndTags(String path) {
+        ArrayList<WordAndTag> wordAndTags = new ArrayList<>();
+        DataManager.parseWordAndTags(
+                path,
+                Pattern.quote("" + WORD_DELIMITER),
+                wordAndTags::add
+        );
+        return wordAndTags;
     }
 
     public void evaluate() {
@@ -41,27 +54,25 @@ public class PosTaggingEvaluator {
         ArrayList<WordAndTag> standardTagging = readWordAndTags(standardTaggedPath);
         ArrayList<WordAndTag> myTagging = readWordAndTags(taggedPath);
 
-        if (standardTagging.size() != myTagging.size()) {
-            throw new RuntimeException("POS Tagging Error!" +
-                    "\nstandardTagging.size()=" + standardTagging.size() +
-                    "\nmyTagging.size()=" + myTagging.size());
-        }
+        assert standardTagging.size() != myTagging.size();
+
         int size = standardTagging.size();
 
+        ArrayList<TaggingComparison> comparisons = new ArrayList<>();
 
-        ArrayList<TaggingComparison> comparisons = new ArrayList<>(size);
-
+        // Number of correct tags
         int countCommon = 0;
+
         for (int i = 0; i < size; i++) {
-            if (standardTagging.get(i).toString()
-                    .equals(
-                            myTagging.get(i).toString())) {
+            WordAndTag standardWordAndTag = standardTagging.get(i);
+            WordAndTag myWordAndTag = myTagging.get(i);
+            if (standardWordAndTag.getTag().equals(myWordAndTag.getTag())) {
                 countCommon++;
                 comparisons.add(new TaggingComparison(
-                        false, standardTagging.get(i).toString(), myTagging.get(i).toString()));
+                        false, standardWordAndTag.toString(), myWordAndTag.toString()));
             } else {
                 comparisons.add(new TaggingComparison(
-                        true, standardTagging.get(i).toString(), myTagging.get(i).toString()));
+                        true, standardWordAndTag.toString(), myWordAndTag.toString()));
             }
         }
 
@@ -74,15 +85,5 @@ public class PosTaggingEvaluator {
         System.out.println("Correctly tagged words: " + countCommon);
         System.out.println("Accuracy:               " + countCommon / (double) size);
         System.out.println("---------------------------------------------------------");
-    }
-
-    private ArrayList<WordAndTag> readWordAndTags(String path) {
-        ArrayList<WordAndTag> wordAndTags = new ArrayList<>();
-        DataManager.parseWordAndTags(
-                path,
-                Pattern.quote("" + WORD_DELIMITER),
-                wordAndTag -> wordAndTags.add(wordAndTag)
-        );
-        return wordAndTags;
     }
 }

@@ -26,11 +26,9 @@ public class PosTaggingTask {
     }
 
     public static void main(String[] args) {
-        System.out.println(PosTaggingTask.class.getName() + " Running...");
+        System.out.println(PosTaggingTask.class.getName() + " is running...");
 
-        for (int i = 0; i < 15; i++) {
-            runSingleTask(false);
-        }
+        runSingleTask(false);
     }
 
     public static void start(StatisticsBox box) {

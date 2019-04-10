@@ -27,19 +27,23 @@ public class SegmentationTask {
     }
 
     public static void main(String[] args) {
-        System.out.println(SegmentationTask.class.getName() + " Running...");
+        System.out.println(SegmentationTask.class.getName() + " is running...");
 
         runSingleTask(false);
     }
 
     public static void start(StatisticsBox box) {
-        Vocabulary vocabulary = new Vocabulary(box.getWord2FrequencyMap().keySet());
-        DataManager.writeObjectToJson(VOCABULARY_JSON_PATH, vocabulary);
+        box.saveWordFrequencyAsJson(WORD_FREQUENCY_JSON_PATH); // Homework requirement
+
+        Vocabulary vocabulary = new Vocabulary(box.getWordList());
+        DataManager.writeObjectToJson(VOCABULARY_JSON_PATH, vocabulary); // For debugging convenience
 
         Segmenter segmenter = new Segmenter(vocabulary);
         segmenter.letsDoIt(TEST_UNSEGMENTED_DATA_PATH, TEST_SEGMENTED_DATA_PATH);
         new SegmentationEvaluator(Segmenter.WORD_DELIMITER,
                 TEST_SEGMENTED_DATA_PATH,
-                TEST_STANDARD_SEGMENTED_DATA_PATH).evaluate(DIFFERENT_PHRASES_JSON_PATH);
+                TEST_STANDARD_SEGMENTED_DATA_PATH,
+                DIFFERENT_PHRASES_JSON_PATH
+        ).evaluate();
     }
 }

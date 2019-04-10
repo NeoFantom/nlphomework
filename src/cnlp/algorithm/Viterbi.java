@@ -1,6 +1,9 @@
 package cnlp.algorithm;
 
 /**
+ * This algorithm is provided by:
+ * <a href="https://github.com/hankcs/Viterbi">hankcs</a>
+ * 
  * 维特比算法
  * @author hankcs
  */

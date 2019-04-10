@@ -1,15 +1,15 @@
 package cnlp.io;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import cnlp.Constants;
 import cnlp.model.WordAndTag;
 import cnlp.model.WordAndTagProcessor;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cnlp.Constants.RAW_DATA_DELIMITER;
 import static java.lang.System.exit;
 
 /**
@@ -86,7 +86,7 @@ public class DataManager {
             double totalLines = trainLines + testLines;
             System.out.printf(
                     "Dividing finished. %d lines in train data, %d lines in test data.\n" +
-                            "Actual train/test ratio: %.3f/%.3f\n",
+                            "Actual train/test ratio estimate: %.3f/%.3f\n",
                     trainLines, testLines,
                     trainLines / totalLines, testLines / totalLines);
         } catch (IOException e) {
@@ -110,8 +110,9 @@ public class DataManager {
             String line = original.readLine();
             while (line != null) {
 
-                for (String pair : line.split(Constants.RAW_DATA_DELIMITER)) {
+                for (String pair : line.split(RAW_DATA_DELIMITER)) {
 
+                    // Split the word and tag, where [0] for the word and [1] for the tag
                     String word = pair.split("/")[0];
                     if (!word.trim().isEmpty()) {
                         unsegmented.write(word);
@@ -145,8 +146,9 @@ public class DataManager {
             String line = original.readLine();
             while (line != null) {
 
-                for (String pair : line.split(Constants.RAW_DATA_DELIMITER)) {
+                for (String pair : line.split(RAW_DATA_DELIMITER)) {
 
+                    // Split the word and tag, where [0] for the word and [1] for the tag
                     String word = pair.split("/")[0];
                     if (!word.trim().isEmpty()) {
                         untagged.write(word);
@@ -166,8 +168,11 @@ public class DataManager {
         }
     }
 
-    public static void parseWordAndTags(String path, String delimiterRegex,
-                                        WordAndTagProcessor processor) {
+    public static void parseWordAndTags(
+            String path,
+            String delimiterRegex,
+            WordAndTagProcessor processor
+    ) {
 
         try (BufferedReader reader = bReader(path)) {
             System.out.println("Reading raw data from " + path + " ...");
@@ -178,6 +183,7 @@ public class DataManager {
 
                 for (String pair : line.split(delimiterRegex)) {
 
+                    // Split the word and tag, where [0] for the word and [1] for the tag
                     String[] strings = pair.split("/");
                     if (!strings[0].trim().isEmpty() && !strings[0].trim().isEmpty()) {
                         WordAndTag wordAndTag = new WordAndTag(strings[0], strings[1]);
@@ -247,8 +253,8 @@ public class DataManager {
         }
     }
 
-    public static interface ReadAndWriteProcessor {
-        public void process(BufferedReader reader, BufferedWriter writer) throws IOException;
+    public interface ReadAndWriteProcessor {
+        void process(BufferedReader reader, BufferedWriter writer) throws IOException;
     }
 
     public static void readAndWrite(

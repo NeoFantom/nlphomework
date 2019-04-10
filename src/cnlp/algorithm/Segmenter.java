@@ -22,15 +22,18 @@ public class Segmenter {
      * It's based on maximum-match algorithm.
      * <p>
      * Algorithm specification:
-     * For efficiency, we don't read the whole string of the text. Instead,
-     * every time we want to segment next word, we try to fill characters into
-     * {@code charsToMatch} from test file , where n={@code longestMatchLength}
+     * <p>
+     * For efficiency, we don't read the whole string of the text. Instead, we
+     * read a small part each step.
+     * <p>
+     * Every time we want to segment next word, we try to fill m characters into
+     * {@code charsToMatch} from test file , where m={@code maxWordLength}
      * is the maximum word length in {@code vocabulary}, and the file is
      * accessible through lambda parameter {@code reader}. If, at most, the
-     * first m characters matches a word in the vocabulary (here
-     * m={@code actualReadLength}), then mark these m characters as a word
+     * first l characters matches a word in the vocabulary (here
+     * l={@code longestMatchLength}), then mark these l characters as a word
      * and write to output file through lambda parameter {@code writer},
-     * and read another (n-m) characters from {@code reader} into our
+     * then read another (m-l) characters from {@code reader} into our
      * buffer {@code charsToMatch}. Do the procedure repeatedly until all
      * text are segmented, i.e. end-of-file is reached.
      *
@@ -43,33 +46,51 @@ public class Segmenter {
                 inputPath,
                 outputPath,
                 (reader, writer) -> {
+
+                    // Initialize variables
                     final int maxWordLength = vocabulary.getMaxWordLength();
                     final char[] charsToMatch = new char[maxWordLength];
                     int longestMatchLength = maxWordLength;
+                    // ATTENTION: you may find this assignment weird, but it's done
+                    // so that maxWordLength-longestMatchLength==0 at the beginning.
+                    // See the comment starting with $1 to understand.
+
 
                     while (true) {
                         int actualReadLength = reader.read(
                                 charsToMatch, maxWordLength - longestMatchLength, longestMatchLength);
+                        // $1 Note that at the beginning, maxWordLength-longestMatchLength==0
 
+                        // If there's not enough characters to read, end-of-file
+                        // has been reached. Let's take care of it.
                         if (actualReadLength != longestMatchLength) {
-                            // There's not enough characters to read, so end-of-file
-                            // has been reached. Let's take care of it.
 
+                            // actualReadLength == -1 when no characters can be read.
                             actualReadLength = actualReadLength == -1 ? 0 : actualReadLength;
+
+                            // Note that longestMatchLength is the last longest match, length
+                            // of which we should have filled if not reaching end-of-file.
                             longestMatchLength -= actualReadLength;
+
+                            // To hold the remaining characters
                             char[] remainingChars = new char[maxWordLength];
+
+                            // Fill the remainingChars.
+                            // Note that we move the remaining characters to the end of array,
+                            // because there won't be new characters fed into this array and
+                            // we only need to discard the matched characters at the beginning
+                            // of remaining characters, which means it'll be easier if the
+                            // characters are stacked at the end of the array.
                             System.arraycopy(
                                     charsToMatch, 0,
                                     remainingChars, longestMatchLength,
                                     maxWordLength - longestMatchLength);
 
+                            // When remainingChars.length == longestMatchLength, we know it's
+                            // done, since all the remaining characters are one word.
                             while (remainingChars.length > longestMatchLength) {
-                                // We still need to segment the remaining text in remainingChars.
-                                // When remainingChars.length == longestMatchLength, we know it's
-                                // done, since all the remaining characters are one word.
 
-                                // Shrink the buffer. We only need characters of interval
-                                // [longestMatchLength, remainingChars.length)
+                                // Discard matched characters at the beginning of the buffer.
                                 remainingChars = Arrays.copyOfRange(
                                         remainingChars,
                                         longestMatchLength, remainingChars.length);
@@ -100,10 +121,7 @@ public class Segmenter {
         longestMatchLength =
                 longestMatchLength == 0 ?
                         1 : longestMatchLength;
-//for debug============================================================
-//        System.out.println(longestMatchLength);
-//        System.out.println(charsToMatch);
-//======================================================================
+
         writer.write(charsToMatch, 0, longestMatchLength);
         writer.write(WORD_DELIMITER);
 

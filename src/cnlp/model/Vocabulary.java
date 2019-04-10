@@ -4,36 +4,33 @@ import java.util.*;
 
 /**
  * Models a vocabulary with trie (i.e. prefix tree).
- * A {@link Vocabulary} is basically a trie, but named as "Vocabulary".
+ *
  * This implementation is specially designed for Chinese trie.
+ *
+ * There are two steps to use this class:
+ * 1. Construct a vocabulary using a {@link Collection} of words.
+ * 2. Check if a given word is in this vocabulary.
+ *
+ * Step 1 is implemented in {@link Vocabulary#Vocabulary}.
+ * Step 2 is implemented in {@link Vocabulary#longestMatchLength}
  */
 public class Vocabulary {
 
     private class Node {
 
         private char key;
-        //private Node parent;
         private HashMap<Character, Node> childrenMap;
         private boolean endOfWord;
 
         Node(char key) {
             this.key = key;
-//            parent = null;
             this.childrenMap = new HashMap<>();
             this.endOfWord = false;
         }
 
-//        public void setParent(Node parent) {
-//            this.parent = parent;
-//        }
-
         public char getKey() {
             return key;
         }
-
-//        public Node getParent() {
-//            return parent;
-//        }
 
         boolean hasChild(char childKey) {
             return childrenMap.containsKey(childKey);
@@ -45,7 +42,6 @@ public class Vocabulary {
 
         void addChildIfAbsent(char childKey) {
             Node newNode = new Node(childKey);
-//            newNode.setParent(Node.this);
             childrenMap.putIfAbsent(childKey, newNode);
         }
 
@@ -65,7 +61,7 @@ public class Vocabulary {
     public Vocabulary(Collection<String> wordList) {
         root = new Node('$');
         // Key of root node, i.e. '$' is not contained in the word.
-        // It's just used as a placeholder for convenient.
+        // It's just used as a placeholder for convenience.
 
         maxWordLength = 0;
         for (String word : wordList) {
@@ -88,12 +84,9 @@ public class Vocabulary {
     /**
      * Match the given {@code charsToMath} as long as possible.
      *
-     * @param charsToMatch characters that you want to match. It could
-     *                     be an array, a {@link java.util.List},
-     *                     a {@link java.util.Set}, etc. As long as it
-     *                     implements {@link Iterable} interface.
-     * @return number of characters in {@code charsToMatch} that match
-     * some word in the vocabulary.
+     * @param charsToMatch characters that you want to match.
+     * @return maximum number of characters in {@code charsToMatch} that match
+     * some word in this vocabulary.
      */
     public int longestMatchLength(char[] charsToMatch) {
         int matchLength = 0;

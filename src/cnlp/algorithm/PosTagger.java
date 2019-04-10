@@ -6,8 +6,9 @@ import cnlp.model.StatisticsBox;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.regex.Pattern;
+
+import static cnlp.Constants.END_OF_SENTENCE_STRINGS;
 
 public class PosTagger {
 
@@ -17,14 +18,9 @@ public class PosTagger {
 
     public static final int OUT_OUT_VOCABULARY = 0;
 
-    public static final HashSet<String> END_OF_SENTENCE_SET =
-            new HashSet<>(Arrays.asList(
-                    "，", "。", "？", "！", "；"
-            ));
-
     private ArrayList<String> tagList;
 
-    private HashMap<String, Integer> word2IdMap;
+    private HashMap<String, Integer> word2IndexMap;
 
     private double[] startProbability;
 
@@ -34,7 +30,7 @@ public class PosTagger {
 
     public PosTagger(StatisticsBox statisticsBox) {
         this.tagList = statisticsBox.getTagList();
-        this.word2IdMap = statisticsBox.getWord2IdMap();
+        this.word2IndexMap = statisticsBox.getWord2IndexMap();
         this.startProbability = statisticsBox.getStartProbability();
         this.transitionProbability = statisticsBox.getTransitionProbability();
         this.emissionProbability = statisticsBox.getEmissionProbability();
@@ -55,33 +51,53 @@ public class PosTagger {
 //                    }
 //                    String[] words = untaggedText.toString().split(Pattern.quote(WORD_DELIMITER));
 
-                    // Assuming test data properly prepared. Otherwise the
+                    // Assuming test data properly prepared with only one line. Otherwise the
                     // code above are needed.
+
+
                     String[] words = reader.readLine().split(Pattern.quote("" + WORD_DELIMITER));
 
+                    // We put all the segmented strings into this StringBuilder.
+                    // Using StringBuilder is much faster than concatenating lots
+                    // of strings.
                     StringBuilder taggedText = new StringBuilder();
 
+                    // For printing info.
                     int sentencesCount = 0;
 
+                    // The start of the text is always the start of a sentence, so
+                    // we set startOfSentence to 0 as default.
                     int startOfSentence = 0;
+
                     for (int i = 1; i <= words.length; i++) {
                         String lastWord = words[i - 1];
-                        if (!lastWord.isEmpty() && END_OF_SENTENCE_SET.contains(lastWord)) {
+
+                        // When we identify a sentence, tag it. Otherwise do nothing and
+                        // wait until a whole sentence is found.
+                        if (!lastWord.isEmpty() && END_OF_SENTENCE_STRINGS.contains(lastWord)) {
                             sentencesCount++;
-                            taggedText.append(taggedSentence(Arrays.copyOfRange(words, startOfSentence, i)));
+                            taggedText.append(
+                                    taggedSentence(
+                                            Arrays.copyOfRange(words, startOfSentence, i)));
+                            startOfSentence = i;
+
                             System.out.print("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b"
                                     + "Tagged sentences: " + sentencesCount);
-                            startOfSentence = i;
                         }
                     }
+
+                    // Tag the last words if it doesn't end with end-of-sentence characters
                     if (startOfSentence != words.length) {
-                        // Tag the last words if it doesn't end with end-of-sentence characters
                         sentencesCount++;
-                        taggedText.append(taggedSentence(Arrays.copyOfRange(words, startOfSentence, words.length)));
+                        taggedText.append(
+                                taggedSentence(
+                                        Arrays.copyOfRange(words, startOfSentence, words.length)));
                         System.out.print("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b"
                                 + "Tagged sentences: " + sentencesCount);
                     }
                     System.out.println();
+
+                    // Write tagging result.
                     writer.write(taggedText.toString());
                 }
         );
@@ -91,13 +107,14 @@ public class PosTagger {
 
         int wordCount = untaggedWords.length;
 
-        int[] wordIdsOfSentence = new int[wordCount];
+        // Prepare the word indices for computation.
+        int[] wordIndicesOfSentence = new int[wordCount];
         for (int i = 0; i < wordCount; i++) {
-            wordIdsOfSentence[i] = word2IdMap.getOrDefault(untaggedWords[i], OUT_OUT_VOCABULARY);
+            wordIndicesOfSentence[i] = word2IndexMap.getOrDefault(untaggedWords[i], OUT_OUT_VOCABULARY);
         }
 
         int[] tagIdsOfSentence = Viterbi.compute(
-                wordIdsOfSentence,
+                wordIndicesOfSentence,
                 startProbability,
                 transitionProbability,
                 emissionProbability

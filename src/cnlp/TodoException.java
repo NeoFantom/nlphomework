@@ -1,6 +1,6 @@
 package cnlp;
 
-public class TodoException extends Exception {
+public class TodoException extends RuntimeException {
 
     @Override
     public void printStackTrace() {

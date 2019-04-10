@@ -10,6 +10,7 @@ import static cnlp.Constants.*;
 public class ChineseNaturalLanguageProcessing {
 
     public static void main(String[] args) {
+        System.out.println(ChineseNaturalLanguageProcessing.class.getName() + " is running...");
         run(false);
     }
 

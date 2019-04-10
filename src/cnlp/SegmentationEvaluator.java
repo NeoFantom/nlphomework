@@ -17,6 +17,14 @@ public class SegmentationEvaluator {
 
     private ArrayList<MarkableString> standardWordsList;
 
+    private String differentPhrasesPath;
+
+    /**
+     * For special use of this program.
+     * <p>
+     * When evaluating, mark the words that are segmented differently.
+     * By default, a word is unmarked on initialization.
+     */
     private class MarkableString {
         private final String string;
         private int mark;
@@ -28,11 +36,6 @@ public class SegmentationEvaluator {
 
         MarkableString markSelf() {
             this.mark = 1;
-            return this;
-        }
-
-        MarkableString unmarkSelf() {
-            this.mark = 0;
             return this;
         }
 
@@ -58,21 +61,54 @@ public class SegmentationEvaluator {
         }
     }
 
-    public SegmentationEvaluator(char WORD_DELIMITER, String segmented, String standardSegmented) {
-        this.WORD_DELIMITER = WORD_DELIMITER;
-        myWordsList = readMarkableWordList(segmented);
-        standardWordsList = readMarkableWordList(standardSegmented);
+    /**
+     * For convenience of writing evaluation results.
+     */
+    private class SegmentationComparison{
+        String standardSegmentation;
+        String mySegmentaion;
+
+        public SegmentationComparison(String standardSegmentation, String mySegmentaion) {
+            this.standardSegmentation = standardSegmentation;
+            this.mySegmentaion = mySegmentaion;
+        }
     }
 
+    public SegmentationEvaluator(
+            char WORD_DELIMITER,
+            String segmented,
+            String standardSegmented,
+            String differentPhrasesPath) {
+        this.WORD_DELIMITER = WORD_DELIMITER;
+        this.myWordsList = readMarkableWordList(segmented);
+        this.standardWordsList = readMarkableWordList(standardSegmented);
+        this.differentPhrasesPath = differentPhrasesPath;
+    }
+
+    /**
+     * Called when segmentation files are malformed.
+     *
+     * @param standardPosition word position of bad data in standard segmentation.
+     * @param standardPhrase   bad phrase of the standard segmentation.
+     * @param myPosition       word position of bad data in my segmentation.
+     * @param myPhrase         bad phrase of the my segmentation.
+     */
     private void reportError(
             int standardPosition, String standardPhrase, int myPosition, String myPhrase) {
-        System.err.println("Malformed segmentation data!");
-        System.err.println(standardPosition + "-th word in standard segmentation file is:");
-        System.err.println(standardPhrase);
-        System.err.println(myPosition + "-th word your segmentation file is:");
-        System.err.println(myPhrase);
+        throw new RuntimeException(
+                "Malformed segmentation data!"+
+                standardPosition + "-th word in standard segmentation file is:"+
+                standardPhrase +
+                myPosition + "-th word your segmentation file is:"+
+                myPhrase);
     }
 
+    /**
+     * Read segmented word list and mark the different ones.
+     *
+     * @param path file path to be read.
+     * @return a {@link ArrayList<MarkableString>} read from path.
+     */
     private ArrayList<MarkableString> readMarkableWordList(String path) {
         ArrayList<MarkableString> list = new ArrayList<>();
         StringBuilder word = new StringBuilder(); // Empty string
@@ -101,9 +137,19 @@ public class SegmentationEvaluator {
         return list;
     }
 
+    // Properties used as temporary variables for efficiency.
     private StringBuilder standardPhrase = new StringBuilder();
     private StringBuilder myPhrase = new StringBuilder();
 
+    /**
+     * Starting from position {@param s} and {@param m}, of standard and my segmentation
+     * respectively, keep moving to newS and newM, such that the two phrases
+     * of standardWordsList[s:newS] and myWordsList[m:newM] are equal.
+     *
+     * @param s beginning position of standardWordsList.
+     * @param m beginning position of myWordsList.
+     * @return new int[]{newS, newM}.
+     */
     private int[] forwardUntilEqual(int s, int m) {
 
         try {
@@ -118,11 +164,16 @@ public class SegmentationEvaluator {
                     myPhrase.append(myWordsList.get(++m).markSelf());
                 }
             }
+
+            // Now standardPhrase.length()==myPhrase.length(). These two
+            // strings should be totally equal otherwise it's malformed data.
             if (!standardPhrase.toString().equals(myPhrase.toString())) {
                 reportError(
                         s, standardPhrase.toString(),
                         m, myPhrase.toString());
             }
+
+            // Clear StringBuilders for next use.
             standardPhrase.delete(0, standardPhrase.length());
             myPhrase.delete(0, myPhrase.length());
         } catch (IndexOutOfBoundsException e) {
@@ -136,6 +187,13 @@ public class SegmentationEvaluator {
         return new int[]{s, m};
     }
 
+    /**
+     * Summarize the number of unmarked(different from the other segmentation)
+     * and marked(oppositely) words.
+     *
+     * @param wordList to be summarized.
+     * @return new int[]{unmarked, marked}.
+     */
     private int[] summarize(List<MarkableString> wordList) {
         int unmarked = 0, marked = 0;
         for (MarkableString markableString : wordList)
@@ -172,6 +230,12 @@ public class SegmentationEvaluator {
         System.out.println("---------------------------------------------------------");
     }
 
+    /**
+     * @param markableWordList {@link List<MarkableString>}
+     * @return an {@link ArrayList<String>} each of which is a phrase, composed of
+     * the words that has been marked, which means they are different from the
+     * other segmentation.
+     */
     private ArrayList<String> extractMarkedPhrases(List<MarkableString> markableWordList) {
 
         ArrayList<String> differentPhrases = new ArrayList<>();
@@ -195,159 +259,40 @@ public class SegmentationEvaluator {
         return differentPhrases;
     }
 
-    public void evaluate(String differentPhrasesPath) {
+    public void evaluate() {
 
         // Step 1 Write differently segmented phrases of my segmentation and standard segmentation
         ArrayList<String> standardDifferentPhrases = extractMarkedPhrases(standardWordsList);
         ArrayList<String> myDifferentPhrases = extractMarkedPhrases(myWordsList);
 
-        if (standardDifferentPhrases.size() != myDifferentPhrases.size()) {
-            throw new RuntimeException(
-                    "Wrong evaluation! standardDifferentPhrases.size()!= myDifferentPhrases.size()");
-        }
+        assert standardDifferentPhrases.size() == myDifferentPhrases.size();
+        int differentPhrasesSize = standardDifferentPhrases.size();
 
-        ArrayList<String[]> comparisons = new ArrayList<>(standardDifferentPhrases.size() + 1);
-        comparisons.add(new String[]{"Example: standard", "Example: yours"});
-        for (int i = 0; i < standardDifferentPhrases.size(); i++) {
-            comparisons.add(
-                    new String[]{standardDifferentPhrases.get(i), myDifferentPhrases.get(i)}
-            );
-        }
-        DataManager.writeObjectToJson(
-                differentPhrasesPath,
-                comparisons);
+        ArrayList<SegmentationComparison> comparisons = new ArrayList<>(differentPhrasesSize);
 
-        // Step 2 Summarize differences and print segmentation performance
-        for (int s = 0, m = 0;
-             s < standardWordsList.size() && m < myWordsList.size();
-             s++, m++) {
+        for (int i = 0; i < differentPhrasesSize; i++) {
+            comparisons.add(new SegmentationComparison(
+                    standardDifferentPhrases.get(i), myDifferentPhrases.get(i)));
+        }
+        DataManager.writeObjectToJson(differentPhrasesPath, comparisons);
+
+        // Step 2 Summarize number of differences and print segmentation performance
+        for (int s = 0, m = 0; s < differentPhrasesSize && m < differentPhrasesSize; s++, m++) {
             if (!standardWordsList.get(s).equals(myWordsList.get(m))) {
                 int[] sm = forwardUntilEqual(s, m);
                 s = sm[0];
                 m = sm[1];
             }
         }
-        int totalCharacters = 0;
-        for (MarkableString word : standardWordsList)
-            totalCharacters += word.length();
+        int totalCharacters = standardWordsList.stream().mapToInt(MarkableString::length).sum();
 
         int[] standardSummary = summarize(standardWordsList);
         int[] mySummary = summarize(myWordsList);
 
-        if (standardSummary[0] != mySummary[0]) {
-            System.err.println("Wrong evaluation! standardSummary[0] != mySummary[0]");
-            exit(1);
-        }
-
+        assert standardSummary[0] == mySummary[0];
         int common = standardSummary[0];
         int onlyInStandard = standardSummary[1];
         int onlyInMy = mySummary[1];
         printEvaluation(common, onlyInStandard, onlyInMy, totalCharacters);
     }
-
-//    // Bad sophisticated implementation
-//    public void _evaluate(String segmented, String standardSegmented, char delimiter) {
-//
-//        try (BufferedReader myReader = new BufferedReader(new FileReader(segmented));
-//             BufferedReader standardReader = new BufferedReader(new FileReader(standardSegmented))) {
-//
-//            ArrayList<String> myPhraseList = new ArrayList<>();
-//            StringBuilder myPhrase = new StringBuilder();
-//            ArrayList<String> standardPhraseList = new ArrayList<>();
-//            StringBuilder standardPhrase = new StringBuilder();
-//
-//            int myFlag = myReader.read();
-//            while (myFlag == delimiter) {
-//                myFlag = myReader.read();
-//            }
-//
-//            int standardFlag = standardReader.read();
-//            while (standardFlag == delimiter) {
-//                standardFlag = standardReader.read();
-//            }
-//
-//            char my, standard;
-//            while (true) {
-//
-//                // Assign int to char if it's not end-of-file.
-//                if (myFlag == -1 || standardFlag == -1) {
-//                    while (myFlag != -1) {
-//                        if (myFlag != delimiter) {
-//                            reportError();
-//                        }
-//                        myFlag = myReader.read();
-//                    }
-//                    while (standardFlag != -1) {
-//                        if (standardFlag != delimiter) {
-//                            reportError();
-//                        }
-//                        standardFlag = standardReader.read();
-//                    }
-//                    break;
-//                } else {
-//                    my = (char) myFlag;
-//                    standard = (char) standardFlag;
-//                }
-//
-//
-//                if (my == delimiter && standard == delimiter) {
-//                    common++;
-//                    inMy++;
-//                    inStandard++;
-//                    myCount++;
-//                    standardCount++;
-//
-//                    totalCharacters++;
-//                    myFlag = myReader.read();
-//                    standardFlag = standardReader.read();
-//                } else if (my == delimiter) {
-//                    inMy++;
-//                    myCount++;
-//                    myFlag = myReader.read();
-//                } else if (standard == delimiter) {
-//                    inStandard++;
-//                    standardCount++;
-//
-//                    totalCharacters++;
-//                    standardFlag = standardReader.read();
-//                } else if (my != standard) {
-//                    reportError();
-//                    exit(1);
-//                } else {
-//                    myCount++;
-//                    standardCount++;
-//
-//                    totalCharacters++;
-//                    myFlag = myReader.read();
-//                    standardFlag = standardReader.read();
-//                }
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            exit(1);
-//        }
-//
-//        double TP = common;
-//        double FP = inMy - common;
-//        double FN = inStandard - common;
-//        double TN = totalCharacters - TP - FP - FN;
-//        double accuracy = (TP + TN) / totalCharacters;
-//        double recall = TP / (TP + FN);
-//        System.out.println("=========================================================");
-//        System.out.println("                        Finished                         ");
-//        System.out.println("Number of words in your segmentation:     y=" + inMy);
-//        System.out.println("Number of words in standard segmentation: s=" + inStandard);
-//        System.out.println("Number of words in common:                c=" + common);
-//        System.out.println("Number of characters totally:             t=" + totalCharacters);
-//        System.out.println("=========================================================");
-//        System.out.println("                     Evaluation Table                    ");
-//        System.out.println("---------------------------------------------------------");
-//        System.out.println("Predicted:             Yes                No             ");
-//        System.out.printf("Indeed Yes:        TP=%7.0f        FN=%7.0f\n", TP, FN);
-//        System.out.printf("Indeed No :        FP=%7.0f        TN=%7.0f\n", FP, TN);
-//        System.out.println();
-//        System.out.println("Accuracy:    " + accuracy);
-//        System.out.println("Recall:      " + recall);
-//        System.out.println("F1 measure:  " + 2 * recall * accuracy / (recall + accuracy));
-//    }
 }
