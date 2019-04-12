@@ -1,5 +1,9 @@
 # nlphomework
-NLP homework at Shanxi University which include Chinese word segmentation and Chinese word Part-Of-Speech(POS) Tagging.
+This is an NLP practice which include Chinese word segmentation and Chinese word Part-Of-Speech(POS) Tagging.
+
+Word segmentation algorithm: Max-length-match.
+
+POS tagging algorithm: HMM with Viterbi algorithm.
 
 ## Use IntelliJ instead of Eclipse
 I used IntelliJ to write this project, so [IntelliJ](https://www.jetbrains.com/idea/) is highly recommended rather than Eclipse, for if you use IntelliJ, everything's all set, while for eclipse you have to do something manually.

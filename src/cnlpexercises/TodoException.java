@@ -1,4 +1,4 @@
-package cnlp;
+package cnlpexercises;
 
 public class TodoException extends RuntimeException {
 
@@ -6,5 +6,9 @@ public class TodoException extends RuntimeException {
     public void printStackTrace() {
         System.err.println("Your code isn't finished at:");
         super.printStackTrace();
+    }
+
+    public static void todo() {
+        throw new TodoException();
     }
 }

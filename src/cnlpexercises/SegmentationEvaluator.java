@@ -1,12 +1,14 @@
-package cnlp;
+package cnlpexercises;
 
-import cnlp.io.DataManager;
+import cnlpexercises.io.DataManager;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
+import static cnlpexercises.TodoException.todo;
 import static java.lang.System.exit;
 
 public class SegmentationEvaluator {
@@ -80,8 +82,16 @@ public class SegmentationEvaluator {
             String standardSegmented,
             String differentPhrasesPath) {
         this.WORD_DELIMITER = WORD_DELIMITER;
-        this.myWordsList = readMarkableWordList(segmented);
+        //_________________________________________________________________________________________
+        // Set myWordList similarly.
+        // myWordList is a list of words segmented by our own segmenter.
+        // standardWordsList is a list of words segmented as in raw file.
+        // Note: Take a look at the MarkableString inner class before you do this part. Or you
+        // will be confused about this structure.
+        todo();
         this.standardWordsList = readMarkableWordList(standardSegmented);
+        this.myWordsList = null;
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         this.differentPhrasesPath = differentPhrasesPath;
     }
 
@@ -97,10 +107,10 @@ public class SegmentationEvaluator {
             int standardPosition, String standardPhrase, int myPosition, String myPhrase) {
         System.err.println(
                 "\nMalformed segmentation data!" +
-                        "\n" + standardPosition + "-th word in standard segmentation file is:" +
-                        standardPhrase +
-                        "\n" + myPosition + "-th word your segmentation file is:" +
-                        myPhrase);
+                "\n" + standardPosition + "-th word in standard segmentation file is:" +
+                standardPhrase +
+                "\n" + myPosition + "-th word your segmentation file is:" +
+                myPhrase);
         exit(1);
     }
 
@@ -154,6 +164,12 @@ public class SegmentationEvaluator {
     private int[] forwardUntilEqual(int s, int m) {
 
         try {
+            //__________________________________________________________________________
+            // Notice where we use markSelf() to mark different tagged words.
+            // Optional: Understand how do we find and mark the different tagged words
+            // (this is a little tricky).
+            todo();
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             standardPhrase.append(standardWordsList.get(s).markSelf());
             myPhrase.append(myWordsList.get(m).markSelf());
 
@@ -267,34 +283,64 @@ public class SegmentationEvaluator {
         int myWordsSize = myWordsList.size();
         for (int s = 0, m = 0; s < standardWordsSize && m < myWordsSize; s++, m++) {
             if (!standardWordsList.get(s).equals(myWordsList.get(m))) {
+                //_________________________________________________________________________________________
+                // Go inside forwardUntilEqual() function.
+                todo();
                 int[] sm = forwardUntilEqual(s, m);
+                //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                 s = sm[0];
                 m = sm[1];
             }
         }
 
         // Step 2 Write differently segmented phrases of my segmentation and standard segmentation
+        //_________________________________________________________________________________________
+        // Set myDifferentPhrases similarly. myDifferentPhrases contains all the phrases
+        // that's segmented differently to standard segmentation.
+        todo();
         ArrayList<String> standardDifferentPhrases = extractMarkedPhrases(standardWordsList);
-        ArrayList<String> myDifferentPhrases = extractMarkedPhrases(myWordsList);
+        ArrayList<String> myDifferentPhrases = null;
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+        //_________________________________________________________________________________________
+        // Note that we use assert (only in debugging) to make sure these two sizes are equal.
+        todo();
         assert standardDifferentPhrases.size() == myDifferentPhrases.size();
         int differentPhrasesSize = standardDifferentPhrases.size();
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         ArrayList<SegmentationComparison> comparisons = new ArrayList<>(differentPhrasesSize);
 
         for (int i = 0; i < differentPhrasesSize; i++) {
+            //_________________________________________________________________________________________
+            // Give the right parameters of constructor SegmentationComparison() from two lists
+            // standardDifferentPhrases and myDifferentPhrases.
+            todo();
             comparisons.add(new SegmentationComparison(
-                    standardDifferentPhrases.get(i), myDifferentPhrases.get(i)));
+                    null, null));
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         }
-        DataManager.writeObjectToJson(differentPhrasesPath, comparisons);
+        //_________________________________________________________________________________________
+        // Write comparisons to differentPhrasesPath using DataManager.writeObjectToJson()
+        todo();
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         // Step 3 Summarize number of differences and print segmentation performance
         int totalCharacters = standardWordsList.stream().mapToInt(MarkableString::length).sum();
 
+        //_________________________________________________________________________________________
+        // Set mySummary similarly. See doc comments of summarize().
+        todo();
         int[] standardSummary = summarize(standardWordsList);
-        int[] mySummary = summarize(myWordsList);
+        int[] mySummary = null;
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-        assert standardSummary[0] == mySummary[0];
+        //_________________________________________________________________________________________
+        // Make sure standardSummary[0] == mySummary[0], these two values should both be
+        // the number of words in common between two segmentation.
+        // Hint: use assert.
+        todo();
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         int common = standardSummary[0];
         int onlyInStandard = standardSummary[1];
         int onlyInMy = mySummary[1];

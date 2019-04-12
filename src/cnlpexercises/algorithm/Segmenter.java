@@ -1,11 +1,13 @@
-package cnlp.algorithm;
+package cnlpexercises.algorithm;
 
-import cnlp.io.DataManager;
-import cnlp.model.Vocabulary;
+import cnlpexercises.io.DataManager;
+import cnlpexercises.model.Vocabulary;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Arrays;
+
+import static cnlpexercises.TodoException.todo;
 
 public class Segmenter {
 
@@ -57,13 +59,22 @@ public class Segmenter {
 
 
                     while (true) {
+                        //____________________________________________________________________
+                        // Read characters into array charsToMatch. Fill the first parameter.
+                        todo();
                         int actualReadLength = reader.read(
-                                charsToMatch, maxWordLength - longestMatchLength, longestMatchLength);
+                                null, maxWordLength - longestMatchLength, longestMatchLength);
                         // $1 (See ATTENTION above)
+                        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
                         // If there's not enough characters to read, end-of-file
                         // has been reached. Let's take care of it.
                         if (actualReadLength != longestMatchLength) {
+                            //_________________________________________________________________
+                            // Optional: Read this part about how to cope with end-of-file.
+                            // (It's very tricky.)
+                            todo();
+                            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
                             // actualReadLength == -1 when no characters can be read.
                             actualReadLength = actualReadLength == -1 ? 0 : actualReadLength;
@@ -101,20 +112,32 @@ public class Segmenter {
                             break; // ATTENTION: break outer loop!
                         }
 
-                        longestMatchLength = matchAndWriteWord(charsToMatch, writer);
+                        //____________________________________________________________________
+                        // Implement matchAndWriteWord() and use it to match a longest word
+                        // and update variable longestMatchLength.
+                        todo();
+                        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+                        //____________________________________________________________________
                         // Move the un-matched characters to the beginning.
-                        System.arraycopy(
-                                charsToMatch, longestMatchLength,
-                                charsToMatch, 0,
-                                charsToMatch.length - longestMatchLength);
+                        // Rewrite this for-loop using System.arraycopy() function.
+                        todo();
+                        int remainingLength = charsToMatch.length - longestMatchLength;
+                        for (int i = 0; i < remainingLength; i++) {
+                            charsToMatch[i] = charsToMatch[longestMatchLength + i];
+                        }
+                        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                     }
                 }
         );
     }
 
     private int matchAndWriteWord(char[] charsToMatch, BufferedWriter writer) throws IOException {
-        int longestMatchLength = vocabulary.longestMatchLength(charsToMatch);
+        //________________________________________________________________________________
+        // Use vocabulary to find out longestMatchLength.
+        todo();
+        int longestMatchLength = 0;
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         // If longestMatchLength == 0, i.e. the character is out-of-vocabulary,
         // just consider this single character as a word.

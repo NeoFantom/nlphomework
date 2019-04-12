@@ -1,16 +1,19 @@
-package cnlp.model;
+package cnlpexercises.model;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+
+import static cnlpexercises.TodoException.todo;
 
 /**
  * Models a vocabulary with trie (i.e. prefix tree).
- *
+ * <p>
  * This implementation is specially designed for Chinese trie.
- *
+ * <p>
  * There are two steps to use this class:
  * 1. Construct a vocabulary using a {@link Collection} of words.
  * 2. Check if a given word is in this vocabulary.
- *
+ * <p>
  * Step 1 is implemented in {@link Vocabulary#Vocabulary}.
  * Step 2 is implemented in {@link Vocabulary#longestMatchLength}
  */
@@ -37,12 +40,22 @@ public class Vocabulary {
         }
 
         Node getChild(char childKey) {
-            return childrenMap.get(childKey);
+            //______________________________________________________________________
+            // Return the child which is related to childKey.
+            // Hint: use childrenMap.get().
+            todo();
+            return null;
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         }
 
         void addChildIfAbsent(char childKey) {
+            // Construct a new node.
             Node newNode = new Node(childKey);
-            childrenMap.putIfAbsent(childKey, newNode);
+            //______________________________________________________________________
+            // Add the new node to this node's children and associate it with childKey.
+            // Hint: use childrenMap.putIfAbsent().
+            todo();
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         }
 
         void markAsEndOfWord() {
@@ -59,14 +72,20 @@ public class Vocabulary {
     private int maxWordLength;
 
     public Vocabulary(Collection<String> wordList) {
+
         root = new Node('$');
         // Key of root node is '$', i.e. root node is not contained in the word.
         // It's just used as a placeholder for convenience.
 
         maxWordLength = 0;
         for (String word : wordList) {
+            // For each word, we add it into our vocabulary.
             addWord(word);
-            maxWordLength = Math.max(maxWordLength, word.length());
+            //_______________________________________________________________________
+            // Update maxWordLength.
+            // Hint: Use Math.max(int a, int b)
+            todo();
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         }
     }
 
@@ -79,6 +98,13 @@ public class Vocabulary {
         // Now node contains the last character of the word.
         // Let's mark it as the end of the word.
         node.markAsEndOfWord();
+        //___________________________________________________________________________
+        // Think: Why must we mark end of a word characters above?
+        // Suppose, if we add "beauty" into our vocabulary. Now we meet a word
+        // "beautiful" in test data. Without end-of-word mark, we'll match a string
+        // "beaut", which is not a word. Not what we want!
+        todo();
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     }
 
     /**
@@ -98,14 +124,13 @@ public class Vocabulary {
         Node here = root;
         for (char c : charsToMatch) {
             here = here.getChild(c);
-            if (here != null) { // The node has child c
-                depth++;
-                if (here.isEndOfWord()) {
-                    matchLength = depth;
-                }
-            } else {
-                break;
-            }
+            //________________________________________________________________________________________
+            // Look above: getChild() returns null if a node doesn't contain a child with this key.
+            // Complete this part yourself.
+            // Don't forget to update matchLength!
+            // Hint: Use here.isEndOfWord() to check if it's the end of a word.
+            todo();
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         }
         return matchLength;
     }

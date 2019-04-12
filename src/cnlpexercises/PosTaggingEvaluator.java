@@ -1,10 +1,12 @@
-package cnlp;
+package cnlpexercises;
 
-import cnlp.io.DataManager;
-import cnlp.model.WordAndTag;
+import cnlpexercises.io.DataManager;
+import cnlpexercises.model.WordAndTag;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
+
+import static cnlpexercises.TodoException.todo;
 
 public class PosTaggingEvaluator {
 
@@ -51,11 +53,17 @@ public class PosTaggingEvaluator {
 
     public void evaluate() {
         System.out.println("Evaluating POS tagging task...");
+        //_______________________________________________________________________________________
+        // Initialize myTagging similarly.
+        todo();
         ArrayList<WordAndTag> standardTagging = readWordAndTags(standardTaggedPath);
-        ArrayList<WordAndTag> myTagging = readWordAndTags(taggedPath);
+        ArrayList<WordAndTag> myTagging = null;
 
-        assert standardTagging.size() == myTagging.size();
+        // Make sure standardTagging.size() == myTagging.size(). If not, some code must be wrong!
+        // Hint: Use assert.
+        todo();
         int size = standardTagging.size();
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         ArrayList<TaggingComparison> comparisons = new ArrayList<>();
 
@@ -65,17 +73,31 @@ public class PosTaggingEvaluator {
         for (int i = 0; i < size; i++) {
             WordAndTag standardWordAndTag = standardTagging.get(i);
             WordAndTag myWordAndTag = myTagging.get(i);
-            if (standardWordAndTag.getTag().equals(myWordAndTag.getTag())) {
+
+            //___________________________________________________________________________________________
+            // Check if standard tag is equal to my tag (given by previous tagging program). And add a
+            // comparison between them accordingly.
+            // Hint: Use String.equals() instead of s1 == s2 (because this compares variable addresses.
+            // And use WordAndTag.getTag() to extract the tag.
+            todo();
+            if (true)
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            {
                 countCommon++;
                 comparisons.add(new TaggingComparison(
                         false, standardWordAndTag.toString(), myWordAndTag.toString()));
             } else {
-                comparisons.add(new TaggingComparison(
-                        true, standardWordAndTag.toString(), myWordAndTag.toString()));
+                //_______________________________________________________________________________________
+                // What should you add to comparison here?
+                todo();
+                //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             }
         }
 
-        DataManager.writeObjectToJson(taggingComparisonPath, comparisons);
+        //_______________________________________________________________________________________________
+        // Use DataManager.writeObjectToJson() to write comparisons into taggingComparisonPath as json file.
+        todo();
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         System.out.println("Evaluation finished.");
         System.out.println("=========================================================");

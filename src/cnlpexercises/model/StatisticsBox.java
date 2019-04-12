@@ -1,7 +1,6 @@
-package cnlp.model;
+package cnlpexercises.model;
 
-import cnlp.io.DataManager;
-import cnlp.algorithm.PosTagger;
+import cnlpexercises.io.DataManager;
 
 import java.io.Serializable;
 import java.util.*;
@@ -9,6 +8,7 @@ import java.util.stream.Collectors;
 
 import static cnlp.Constants.END_OF_SENTENCE_STRINGS;
 import static cnlp.Constants.RAW_DATA_DELIMITER;
+import static cnlpexercises.TodoException.todo;
 
 public class StatisticsBox implements Serializable {
 
@@ -87,6 +87,10 @@ public class StatisticsBox implements Serializable {
      * @param wordAndTag the item to be used
      */
     private void doStatistics(WordAndTag wordAndTag) {
+        //___________________________________________________________________________________
+        // Read this entire function. Don't forget the doc comment above.
+        todo();
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         // Extract information of variable wordAndTag.
         String word = wordAndTag.getWord();
@@ -134,20 +138,31 @@ public class StatisticsBox implements Serializable {
     private void normalizeProbabilities() {
         normalizeVector(startProbability);
         Arrays.stream(transitionProbability).forEach(StatisticsBox::normalizeVector);
-        Arrays.stream(emissionProbability).forEach(StatisticsBox::normalizeVector);
+        //________________________________________________________________________________
+        // Normalize emissionProbability similarly as transitionProbability.
+        todo();
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     }
 
     public static StatisticsBox fromTrainData(String path) {
         System.out.println("Constructing " + StatisticsBox.class.getName() + " from train data.");
         StatisticsBox box = new StatisticsBox();
 
+        //________________________________________________________________________________________
         // What if there is an OOV(out-of-vocabulary) word? To deal with them, we add an
         // empty String as a placeholder before reading any train data, and map all the
         // OOV words to this one.
-        box.wordList.add("");
+        // Your task: Add an empty string to box.wordList.
+        todo();
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         System.out.println("Extracting words ang tags...");
+        //________________________________________________________________________________________
+        // Try to understand this line of code. Read all the comments of rememberWordAndTag().
+        // Especially doc comments which are above function name.
+        todo();
         DataManager.parseWordAndTags(path, RAW_DATA_DELIMITER, box::rememberWordAndTag);
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         int tagCount = box.tagList.size();
         int wordCount = box.wordList.size();
@@ -157,16 +172,24 @@ public class StatisticsBox implements Serializable {
         box.word2FrequencyMap = new HashMap<>(wordCount);
 
         // We must give the emission probability of out-of-vocabulary words
-        // given any tag. We simply set all of them to 1. NOT ZERO because
-        // all zeros add up to 0, which means total frequency is 0, which
-        // means the probability of any tag given an OOV word is 0,
-        // impossible.
+        // given any tag, i.e. P_emi(OOV | some_tag). We simply set
+        // all of them to 1. NOT ZERO because all zeros add up to 0, which
+        // means total frequency is 0, which means the probability of any
+        // tag given an OOV word is 0 (think about Bayes equation), impossible.
         for (int i = 0; i < tagCount; i++) {
-            box.emissionProbability[i][0] = 1;
+            //____________________________________________________________________________________
+            // Read the comments above. Here P_emi(OOV | tag_i) is emissionProbability[i][0] in code.
+            // Your task: assign box.emissionProbability[i][0] to 1 for every i.
+            todo();
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         }
 
         System.out.println("Doing statistics...");
+        //________________________________________________________________________________________
+        // Try to understand this line of code. Go inside function doStatistics().
+        todo();
         DataManager.parseWordAndTags(path, RAW_DATA_DELIMITER, box::doStatistics);
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         box.normalizeProbabilities();
 
@@ -176,23 +199,39 @@ public class StatisticsBox implements Serializable {
 
     public static StatisticsBox fromSavedFile(String path) {
         System.out.println("Recovering " + StatisticsBox.class.getName() + " from saved file.");
-        return (StatisticsBox) DataManager.readObjectsFromBinary(path).get(0);
+        //_______________________________________________________________________________
+        // Read a StatisticsBox from path by imitating saveStatistics(String path) function.
+        // Hint: use get(i) to get the i-th element of a list.
+        todo();
+        return null;
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     }
 
     public void saveStatistics(String path) {
-        DataManager.writeObjectsToBinary(
-                path,
-                this);
+        DataManager.writeObjectsToBinary(path, this);
     }
 
     public void saveWordFrequencyAsJson(String path) {
-        List<WordWithFrequency> wordWithFrequencyList =
-                new ArrayList<>(getWord2FrequencyMap().entrySet())
-                        .stream()
-                        .map(WordWithFrequency::new)
-                        .sorted(Comparator.comparingInt(WordWithFrequency::getFrequency))
-                        .collect(Collectors.toList());
-        DataManager.writeObjectToJson(path, wordWithFrequencyList);
+        // We build a word list with their frequencies then write it to parameter path.
+        List<WordWithFrequency> wordWithFrequencyList = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : getWord2FrequencyMap().entrySet()) {
+            //_______________________________________________________________________________
+            // Add a WordWithFrequency object to list using this entry.
+            todo();
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+        //___________________________________________________________________________________
+        // Sort this list by frequency, increasing. Just replace argument null by:
+        // (o1, o2) -> o1.getFrequency() - o2.getFrequency()
+        todo();
+        wordWithFrequencyList.sort(null);
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+        //___________________________________________________________________________________
+        // Write this list to path using DataManager.writeObjectToJson().
+        // Then compare your implementation with a better Java 8 implementation in answer.
+        todo();
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     }
 
     public ArrayList<String> getWordList() {

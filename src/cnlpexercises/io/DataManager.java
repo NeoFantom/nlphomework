@@ -1,7 +1,7 @@
-package cnlp.io;
+package cnlpexercises.io;
 
-import cnlp.model.WordAndTag;
-import cnlp.model.WordAndTagProcessor;
+import cnlpexercises.model.WordAndTag;
+import cnlpexercises.model.WordAndTagProcessor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static cnlp.Constants.RAW_DATA_DELIMITER;
+import static cnlpexercises.TodoException.todo;
 import static java.lang.System.exit;
 
 /**
@@ -62,16 +63,23 @@ public class DataManager {
                 line = line
                         // 1. Remove dates.
                         .replaceFirst("\\d{8}-\\d{2}-\\d{3}-\\d{3}/m\\s+", "")
-                        // 2. Remove "group tags".
-                        // e.g. See (line 6, column 84) in raw data file.
+                        // 2. Remove "group tags". E.g. see (line 6, column 84) in raw data file.
+                        // 2.1 Remove left bracket [
                         .replace('[', ' ')
+                        // 2.1 Remove right bracket ] with its suffixes
                         .replaceAll("]\\w+", "");
 
                 if (!line.isEmpty()) {
-                    if (Math.random() < trainDataRatio) {
-                        train.write(line);
-                        trainLines++;
-                    } else {
+                    //_________________________________________________________________________________
+                    // Fill the if condition. Think: how to determine which lines should fall into train data?
+                    // Hint: use Math.random() to get a random number between [0,1)
+                    todo();
+                    if (true) {
+                        // Write the line into train data file (similar to else branch).
+                        todo();
+                    }
+                    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    else {
                         test.write(line);
                         testLines++;
                     }
@@ -115,9 +123,13 @@ public class DataManager {
                     // Split the word and tag, where [0] for the word and [1] for the tag
                     String word = pair.split("/")[0];
                     if (!word.trim().isEmpty()) {
+                        //______________________________________________________________________
+                        // Just read this part of code. Learn how to write to files.
+                        todo();
                         unsegmented.write(word);
                         standardSegmented.write(word);
                         standardSegmented.write(delimiter);
+                        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                     }
                 }
 
@@ -151,10 +163,13 @@ public class DataManager {
                     // Split the word and tag, where [0] for the word and [1] for the tag
                     String word = pair.split("/")[0];
                     if (!word.trim().isEmpty()) {
-                        untagged.write(word);
-                        untagged.write(delimiter);
-                        standardTagged.write(pair);
-                        standardTagged.write(delimiter);
+                        //________________________________________________________________________
+                        // What should you write into the writers(untagged, standardTagged) here?
+                        // Hint: Untagged test file should only contain words and word
+                        // delimiters, while standardTagged file also contains the tag.
+                        // Note: variable relation: pair == word + tag.
+                        todo();
+                        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                     }
                 }
 

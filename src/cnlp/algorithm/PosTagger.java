@@ -70,10 +70,10 @@ public class PosTagger {
                     int startOfSentence = 0;
 
                     for (int i = 1; i <= words.length; i++) {
-                        String lastWord = words[i - 1];
 
                         // When we identify a sentence, tag it. Otherwise do nothing and
                         // wait until a whole sentence is found.
+                        String lastWord = words[i - 1];
                         if (!lastWord.isEmpty() && END_OF_SENTENCE_STRINGS.contains(lastWord)) {
                             sentencesCount++;
                             taggedText.append(
@@ -86,7 +86,8 @@ public class PosTagger {
                         }
                     }
 
-                    // Tag the last words if it doesn't end with end-of-sentence characters
+                    // This if-condition is when your test text doesn't end with end-of-sentence
+                    // characters, which makes some words untagged at last.
                     if (startOfSentence != words.length) {
                         sentencesCount++;
                         taggedText.append(
